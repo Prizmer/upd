@@ -51,10 +51,9 @@ namespace PrizmerUpdater
                 string repositoryName = repositoryList[selectedIdx].Name;
                 string projectName = repositoryList[selectedIdx].Description;
 
-
                 string remoteURL = "https://github.com/" + userName + "/" + repositoryName + "/trunk/";
                 bool bFullProject = false;
-                if (projectName.Length > 0)
+                if (projectName != null && projectName.Length > 0)
                 {
                     Console.Write("Введите [1] для копирования всего проекта, если нужен лишь исполнимый файл, нажмите ввод: ");
                     inpStr = Console.ReadLine().Trim();
@@ -68,6 +67,8 @@ namespace PrizmerUpdater
                     }
                 }
 
+                LBL_REPEAT:
+
                 string targetDirectory = @"C:\" + userName + @"\" + repositoryName;
 
                 Console.WriteLine("\nURL: " + remoteURL);
@@ -77,8 +78,9 @@ namespace PrizmerUpdater
 
                 if (Directory.Exists(targetDirectory))
                 {
-                    Console.WriteLine("\nУдаляем старые файлы...");
+                    Console.Write("\nУдаляем старые файлы...");
                     Directory.Delete(targetDirectory, true);
+                    Console.Write("Готово!\n");
                 }
                 else
                 {
@@ -94,6 +96,11 @@ namespace PrizmerUpdater
                 {
                     svnClient.Export(target, targetDirectory, svnExpArgs, out SvnUpdateResult svnUpdRes);
                     Console.Write("Завершено!\n");
+
+                    if (Directory.Exists(targetDirectory))
+                    {
+                        Process.Start(targetDirectory);
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -101,11 +108,16 @@ namespace PrizmerUpdater
                 }
 
 
-                Console.WriteLine("Выход - ESC, начать заново - любая клавиша");
+                Console.WriteLine("Выход - ESC, Повтор - SPACE, начать заново - любая клавиша");
                 ConsoleKeyInfo cki = Console.ReadKey();
                 if (cki.Key == ConsoleKey.Escape)
                 {
                     Environment.Exit(-1);
+                } 
+                else if (cki.Key == ConsoleKey.Spacebar)
+                {
+                    Console.Clear();
+                    goto LBL_REPEAT;
                 }
                 else
                 {
